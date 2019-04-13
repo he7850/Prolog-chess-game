@@ -1,0 +1,79 @@
+Prolog Chess Version 1.2, 25.7.95
+---------------------------------
+
+Ported by Martin Ostermann to 'standard' Prolog on a 
+Quick+Dirty base. Changes made:
+
+	=	to	is
+	=	to	=:=
+	"	to	'
+	<=	to	=<
+	div	to	//
+
+	INCLUDE to	:- [..]
+
+Also the GUI Interface has been replaced by a tty version, 
+with no display of the board, just moves. 
+
+It has been tested on SWI-Prolog-2.1.0 and BinProlog-3.30.
+Also with a small edit in chess_12.pl (described there) it
+was reported to run on Quintus Prolog 3.1.4. Load with
+'[chess_12].' and start with 'run.'
+
+NOTE: The rochade has not jet been implemented. More detailed notes 
+offered at 'http://www.cs.tu-berlin.de/~fraber/chess/chess.html'
+
+This archive contains the following files:
+
+chess_12.pl  globals.pl   pos_val.pl   read.me      
+stack.pl     zug_gen.pl
+
+The read.me file of the original is appended:
+-------------------------------------------------------------------
+
+Prolog Chess Version 1.1, 3.8.89
+--------------------------------
+
+Version for Turbo Prolog
+
+The program comes with two different graphic
+drivers that either support text graphics
+or the BGI interface.
+
+For this purpose, two versions of the "graphics" 
+file exist, one for text graphics ("graphics.std") 
+and one for the BGI interface ("graphics.ega").
+Please copy the relevant file to "graphics.pro" and 
+compile the file "chess_11.pro" which contains 
+the main predicates.
+
+Comments and suggestions are highly 
+appreciated. If you should port this program 
+to other platforms, please drop me a note, 
+so that I can put a link to your site onto my page.
+
+Frank Bergmann 
+<fraber@cs.tu-berlin.de>
+http://www.cs.tu-berlin.de/~fraber
+
+
+
+
+This is the listing of the directory
+where we compiled the program:
+
+bgi.lib         60416   1.01.89   2:00	The BGI Library from Borland
+egavga.bgi       5363   1.01.89   2:00  The BGI driver
+figb_w.fig      72556  17.12.89  20:07  The images of Helmut Kohl and Maggy Thatcher
+globals.pro      1884   3.08.92  16:10 	Global predicates
+goth.chr         8560   1.01.89   2:00  BGI font
+graphics.ega     4398   3.08.92  15:03  EGA output driver
+graphics.std     4472   3.08.92  15:10  Text-mode output driver
+litt.chr         2138   1.01.89   2:00  BGI font
+pos_val.pro      2347   3.08.92  16:20  Position evaluation
+sans.chr         5438   1.01.89   2:00  BGI font
+chess_11.pro    14654   3.08.92  16:31  The main program
+stack.pro         785   3.08.92  16:19  Stack management
+trip.chr         7241   1.01.89   2:00  BGI font
+zug_gen.pro      4968   3.08.92  16:39  Move-generator
+
