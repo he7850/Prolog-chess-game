@@ -86,6 +86,7 @@ predicates
 CLAUSES
 */
 
+
 frontchar(I,C,R):-
 	nonvar(I),
 	name(I,S),
@@ -104,10 +105,6 @@ str_char(S,C):-
 
 char_int(C,C).
 
-% Move: move(From,To), Old: old position, Hit:
-generate(Move,Color,Old,New,Hit):-
-	all_moves(Color,Old,Move),
-	make_move(Color,Old,Move,New,Hit).
 
 %****************************************************************
 %	Tree Management
@@ -195,11 +192,12 @@ enter(Position,Color,Move) :-
 play(BasicPosition,Start) :-
 	asserta(board(BasicPosition,Start)),	% execute only once
 	repeat,
-	retract(board(Position,Color)),			% read last position status and color in action
+	retract(board(Position,Color)),			% read last Position status and color in action
 	enter(Position,Color,Move),
 	make_move(Color,Position,Move,New,_),
+	draw_board(New),
 	invert(Color,Op),
-	asserta(board(New,Op)),					% store current position status and opposite color
+	asserta(board(New,Op)),					% store current Position status and opposite color
 	fail.
 play(_,_).
 
@@ -268,6 +266,16 @@ make_move(Color,Old,move(From,To),New,nohit):-
 	check_00(Old,Color,From,To,Temp),
 	change(Temp,Color,From,To,New),!.
 
+% check_legal : check if Move is legal, Move e.g. from(Pos1,Pos2)
+check_legal(Move,Color,Position):-
+	generate(PosMove,Color,Position,_,_),
+	Move = PosMove,!.
+
+% generate: move(From,To), Old: old position, Hit:
+generate(Move,Color,Old,New,Hit):-
+	all_moves(Color,Old,Move),
+	make_move(Color,Old,Move,New,Hit).
+
 %****************************************************************
 %	User Interface
 %****************************************************************
@@ -308,18 +316,75 @@ pos_no(Row,Col,N):-
 pos_no(R,C,N):-
 	N  is  R*10 + C.
 
-% check_legal : check if Move is legal, Move e.g. from(Pos1,Pos2)
-check_legal(Move,Color,Position):-
- 	generate(PosMove,Color,Position,_,_),
- 	Move = PosMove,!.
-
 % write_move : print move to screen.
 write_move(move(From,To)):-
   	str_pos([A,B],From),
   	str_pos([C,D],To),
 	name(Move,[A,B,C,D]),
-	write('My move: '),write(Move),nl,!.
+	write('My move: '),write(Move),nl,nl,!.
 	
+% draw_board: show current position
+draw_board(Position):-
+	Position = position(H1,H2,_),
+	generate_board(Board),
+	place_pieces(white,H1,Board,Board1),
+	place_pieces(black,H2,Board1,BoardNew),
+	write_board(BoardNew).
+write_board([R1,R2,R3,R4,R5,R6,R7,R8]):-
+	write(R8),nl,
+	write(R7),nl,
+	write(R6),nl,
+	write(R5),nl,
+	write(R4),nl,
+	write(R3),nl,
+	write(R2),nl,
+	write(R1),nl,nl.
+% generate_board: generate blank board
+generate_board([[' ',' ',' ',' ',' ',' ',' ',' '],
+				[' ',' ',' ',' ',' ',' ',' ',' '],
+				[' ',' ',' ',' ',' ',' ',' ',' '],
+				[' ',' ',' ',' ',' ',' ',' ',' '],
+				[' ',' ',' ',' ',' ',' ',' ',' '],
+				[' ',' ',' ',' ',' ',' ',' ',' '],
+				[' ',' ',' ',' ',' ',' ',' ',' '],
+				[' ',' ',' ',' ',' ',' ',' ',' ']]).
+% place_pieces: place pieces of half side on board
+place_pieces(white,Half,Board,BoardNew):-
+	Half = half_position(Pawn,Rook,Knight,Bishop,Queen,King,_),
+	place_piece('\u265F',Pawn,Board,Board1),
+	place_piece('\u265C',Rook,Board1,Board2),
+	place_piece('\u265E',Knight,Board2,Board3),
+	place_piece('\u265D',Bishop,Board3,Board4),
+	place_piece('\u265B',Queen,Board4,Board5),
+	place_piece('\u265A',King,Board5,BoardNew),
+	!.
+place_pieces(black,Half,Board,BoardNew):-
+	Half = half_position(Pawn,Rook,Knight,Bishop,Queen,King,_),
+	place_piece('\u2659',Pawn,Board,Board1),
+	place_piece('\u2656',Rook,Board1,Board2),
+	place_piece('\u2658',Knight,Board2,Board3),
+	place_piece('\u2657',Bishop,Board3,Board4),
+	place_piece('\u2655',Queen,Board4,Board5),
+	place_piece('\u2654',King,Board5,BoardNew),
+	!.
+
+% place_piece: place all pieces of certain type
+place_piece(_,[],Board,Board).
+place_piece(Str,[Field|Fs],Board,BoardNew):-
+	pos_no(Row,Col,Field),
+	nth1(Row, Board, List),
+	replace(List,Col,Str,ListNew),
+	replace(Board,Row,ListNew,Board1),
+	place_piece(Str,Fs,Board1,BoardNew).
+
+% replace(ListOld, Index, ReplacedBy, ListNew)
+replace([_|T], 1, X, [X|T]).
+replace([H|T], I, X, [H|R]):- I > 1, NI is I-1, replace(T, NI, X, R), !.
+replace(L, _, _, L).
+
+
+
+
 who_vs_who:-
 	write('Human(W) vs Human(B)      ( 1 )'),nl,
 	write('Human(W) vs Computer(B)   ( 2 )'),nl,
