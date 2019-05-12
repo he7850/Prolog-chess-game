@@ -40,28 +40,30 @@ PREDICATES
 CLAUSES
 */
 
+% one_step: from Field to Next
 one_step(Field,Direction,Next,Color,Position):-	
 	Next  is  Field + Direction,
 	not(rand(Next)),
 	not(occupied(Next,Color,Position)).
+% call_multiple: from Field to Next
+call_multiple(Field,Direction,Next,Color,Position):-
+	Step  is  Field + Direction,
+	multiple(Step,Direction,Next,Color,Position).
 
-call_multiple(Field,Direct,Next,Color,Position):-
-	Step  is  Field + Direct,
-	multiple(Step,Direct,Next,Color,Position).
-
+% multiple(Field,Direction,Next,Color,Position): true if Next is the possible destination of move
 multiple(Field,_,_,_,_):-
-	rand(Field),
+	rand(Field),	% current field of path is not valid
 	!,fail.
 multiple(Field,_,_,Color,Position):-
- 	occupied(Field,Color,Position),
+ 	occupied(Field,Color,Position),	% path is blocked by piece of same color
  	!,fail.
 multiple(Field,_,Field,Color,Position):-
 	invert(Color,Oppo),
-	occupied(Field,Oppo,Position),!.
-multiple(Field,_,Field,_,_).
+	occupied(Field,Oppo,Position),!. % path has destination with a piece of opposite color
+multiple(Field,_,Field,_,_).	% current field is okay
 multiple(Field,Direction,Next,Color,Position):-
 	Step  is  Field + Direction,
-	multiple(Step,Direction,Next,Color,Position).
+	multiple(Step,Direction,Next,Color,Position).	% search for field of next step
 	
 % half: get half position for one side
 half(position(Half,_,_),Half,white).
@@ -71,13 +73,13 @@ half(position(_,Half,_),Half,black).
 add_half(position(_,Y,Z),Half,white,position(Half,Y,Z)).
 add_half(position(X,_,Z),Half,black,position(X,Half,Z)).
 
-% test if certain occupied
+% occupied: true if there is a piece in the Field
 occupied(Field,white,position(Stones,_,_)):-
 	exist(Field,Stones,_).	
 occupied(Field,black,position(_,Stones,_)):-
 	exist(Field,Stones,_).	
 
-% possition is free
+% fre: true if the position is valid and not occupied by any piece
 fre(Field,Position):-
 	not(occupied(Field,white,Position)),
 	not(occupied(Field,black,Position)),
@@ -107,7 +109,7 @@ poss_move(queen,X):-
 poss_move(king,X):-
 	poss_move(queen,X).
 	
-		
+% pawn_move: move rule for pawn		
 pawn_move(From,white,Position,To):-
 	To  is  From + 9,
 	occupied(To,black,Position).
@@ -141,14 +143,16 @@ pawn_move(From,black,Position,To):-
 	Row  is  From // 10,
 	Row = 7.
 
+% longmove: move for long distance
 longmove(From,Color,Typ,Position,To):-
 	poss_move(Typ,Direction),
 	call_multiple(From,Direction,To,Color,Position).
+% shortmove: move for one step
 shortmove(From,Color,Typ,Position,To):-
 	poss_move(Typ,Direction),
 	one_step(From,Direction,To,Color,Position).
 	
-% generate all moves, From: e.g. 22	
+% all_moves: generate all moves
 all_moves(Color,Position,move(From,To)):-
 	half(Position,half_position(Pawn,_,_,_,_,_,_),Color),
 	single(From,Pawn),	% From is Pawn

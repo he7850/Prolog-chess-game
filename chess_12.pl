@@ -154,9 +154,9 @@ cutting(Value,white,_,Beta) :-
 cutting(Value,black,Alpha,_) :-
 	Alpha>Value.
 
-evaluate(position(half_position(_,_,_,_,_,[],_),_,_),_,Value,move(0,0),_,_,_) :-
+evaluate(position(half_position(_,_,_,_,_,[],_),_,_) ,_,Value,move(0,0),_,_,_) :-
 	winning(black,Value),!.
-evaluate(position(_,half_position(_,_,_,_,_,[],_),_),_,Value,move(0,0),_,_,_) :-
+evaluate(position(_,half_position(_,_,_,_,_,[],_),_) ,_,Value,move(0,0),_,_,_) :-
 	winning(white,Value),!.
 evaluate(position(W,B,_),Color,Value,move(0,0),0,_,_) :-
 	count_halfst(W,white,X),
@@ -173,6 +173,7 @@ evaluate(Position,Color,Value,Move,Depth,Alpha,Beta) :-
 %	Control Management
 %****************************************************************
 
+% enter: given Position and Color, give a Move from human or computer
 enter(Position,Color,Move) :-
 	human(Color),
 	repeat,
@@ -180,10 +181,9 @@ enter(Position,Color,Move) :-
 	(	check_legal(Move,Color,Position),
 	 	nl,!
 	;
-	 	write('Illegal Move'),fail
+		write('Illegal Move'),
+		nl,fail
 	).
-
-
 enter(Position,Color,Move) :-	
 	depth(Depth),!,
 	worst_value(white,Alpha),
@@ -191,14 +191,15 @@ enter(Position,Color,Move) :-
 	evaluate(Position,Color,_Value,Move,Depth,Alpha,Beta),
 	write_move(Move),!.
 	
+% play: chess main loop, Start and Opposite take turns
 play(BasicPosition,Start) :-
-	asserta(board(BasicPosition,Start)),
+	asserta(board(BasicPosition,Start)),	% execute only once
 	repeat,
-	retract(board(Position,Color)),
+	retract(board(Position,Color)),			% read last position status and color in action
 	enter(Position,Color,Move),
 	make_move(Color,Position,Move,New,_),
 	invert(Color,Op),
-	asserta(board(New,Op)),
+	asserta(board(New,Op)),					% store current position status and opposite color
 	fail.
 play(_,_).
 
@@ -258,7 +259,7 @@ check_00(Old,black,85,83,New) :-
 	change(Old,black,81,84,New),!.
 check_00(Old,_,_,_,Old).
 
-% move piece: 
+% make_move: get New position from Old position and Move,
 make_move(Color,Old,move(From,To),New,hit):-
 	invert(Color,Oppo),
 	kill(Old,Oppo,To,Temp),
@@ -271,7 +272,7 @@ make_move(Color,Old,move(From,To),New,nohit):-
 %	User Interface
 %****************************************************************
 
-
+% read_move: read input from user
 read_move(move(From,To)):-
 	repeat,
 	write('Your move: '),
@@ -307,16 +308,17 @@ pos_no(Row,Col,N):-
 pos_no(R,C,N):-
 	N  is  R*10 + C.
 
-% Move : check if Move is legal, Move e.g. from(Pos1,Pos2)
+% check_legal : check if Move is legal, Move e.g. from(Pos1,Pos2)
 check_legal(Move,Color,Position):-
  	generate(PosMove,Color,Position,_,_),
  	Move = PosMove,!.
 
+% write_move : print move to screen.
 write_move(move(From,To)):-
   	str_pos([A,B],From),
   	str_pos([C,D],To),
 	name(Move,[A,B,C,D]),
-	write('My move:   '),write(Move),nl,!.
+	write('My move: '),write(Move),nl,!.
 	
 who_vs_who:-
 	write('Human(W) vs Human(B)      ( 1 )'),nl,
@@ -329,7 +331,6 @@ who_vs_who:-
 	write('Enter <exit.> to quit'),nl,
 	nl,
 	save_color(I).
-
 
 get_vs(I):-
 	get(CI),	% CharI
