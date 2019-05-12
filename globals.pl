@@ -62,6 +62,8 @@ PREDICATES
 CLAUSES
 
 */
+
+% rand(X): X is invalid position
 rand(X):-
 	X =< 10,!.
 rand(X):-
@@ -71,22 +73,26 @@ rand(X):-
 rand(X):-
 	9 is X mod 10,!.
 	
-exist(Feld,half_position(X,_,_,_,_,_,_),pawn):-
-	single(Feld,X).
-exist(Feld,half_position(_,X,_,_,_,_,_),rook):-
-	single(Feld,X).
-exist(Feld,half_position(_,_,X,_,_,_,_),knight):-
-	single(Feld,X).
-exist(Feld,half_position(_,_,_,X,_,_,_),bishop):-
-	single(Feld,X).
-exist(Feld,half_position(_,_,_,_,X,_,_),queen):-
-	single(Feld,X).
-exist(Feld,half_position(_,_,_,_,_,X,_),king):-
-	single(Feld,X).
+% exist: check if there is a piece of certain half in the field
+exist(Field,half_position(X,_,_,_,_,_,_),pawn):-
+	single(Field,X).
+exist(Field,half_position(_,X,_,_,_,_,_),rook):-
+	single(Field,X).
+exist(Field,half_position(_,_,X,_,_,_,_),knight):-
+	single(Field,X).
+exist(Field,half_position(_,_,_,X,_,_,_),bishop):-
+	single(Field,X).
+exist(Field,half_position(_,_,_,_,X,_,_),queen):-
+	single(Field,X).
+exist(Field,half_position(_,_,_,_,_,X,_),king):-
+	single(Field,X).
 
+/*
+member(X,[X|_]).
+member(X,[_|Rest]) :- member(X,Rest).
+*/
 single(X,[X|_]).
-single(X,[_|Rest]):-
-	single(X,Rest).
+single(X,[_|Rest]):- single(X,Rest).
 
 invert(F1,F2):-
 	F1 = black,
@@ -100,10 +106,6 @@ remove(X,[X|New],New):- !.
 remove(X,[A|Old],[A|New]):-
 	remove(X,Old,New).
 
-/*
-repeat.
-repeat:- repeat.
-*/
 for(I,I,_,I):- !.	
 for(I,To,_,I):- I =\= To.
 for(I,To,Step,Index):-
@@ -112,7 +114,4 @@ for(I,To,Step,Index):-
 	for(I1,To,Step,Index).	
 end_for(I,I).
 	
-/*
-member(X,[X|_]).
-member(X,[_|Rest]) :- member(X,Rest).
-*/
+

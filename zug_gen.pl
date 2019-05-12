@@ -63,22 +63,27 @@ multiple(Field,Direction,Next,Color,Position):-
 	Step  is  Field + Direction,
 	multiple(Step,Direction,Next,Color,Position).
 	
+% half: get half position for one side
 half(position(Half,_,_),Half,white).
 half(position(_,Half,_),Half,black).
 
+% add_half: update half position
 add_half(position(_,Y,Z),Half,white,position(Half,Y,Z)).
 add_half(position(X,_,Z),Half,black,position(X,Half,Z)).
 
+% test if certain occupied
 occupied(Field,white,position(Stones,_,_)):-
 	exist(Field,Stones,_).	
 occupied(Field,black,position(_,Stones,_)):-
 	exist(Field,Stones,_).	
 
+% possition is free
 fre(Field,Position):-
 	not(occupied(Field,white,Position)),
 	not(occupied(Field,black,Position)),
 	not(rand(Field)).
 
+% possible move: (piece, move value)
 poss_move(rook,10).
 poss_move(rook,-10).
 poss_move(rook,1).
@@ -143,9 +148,10 @@ shortmove(From,Color,Typ,Position,To):-
 	poss_move(Typ,Direction),
 	one_step(From,Direction,To,Color,Position).
 	
+% generate all moves, From: e.g. 22	
 all_moves(Color,Position,move(From,To)):-
-	half(Position,half_position(Bauern,_,_,_,_,_,_),Color),
-	single(From,Bauern),
+	half(Position,half_position(Pawn,_,_,_,_,_,_),Color),
+	single(From,Pawn),	% From is Pawn
 	pawn_move(From,Color,Position,To).
 all_moves(Color,Position,move(From,To)):-
 	half(Position,half_position(_,Rookies,_,_,_,_,_),Color),

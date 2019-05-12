@@ -104,6 +104,7 @@ str_char(S,C):-
 
 char_int(C,C).
 
+% Move: move(From,To), Old: old position, Hit:
 generate(Move,Color,Old,New,Hit):-
 	all_moves(Color,Old,Move),
 	make_move(Color,Old,Move,New,Hit).
@@ -176,11 +177,11 @@ enter(Position,Color,Move) :-
 	human(Color),
 	repeat,
 	read_move(Move),
-	 (	check_legal(Move,Color,Position),
+	(	check_legal(Move,Color,Position),
 	 	nl,!
-	 ;
+	;
 	 	write('Illegal Move'),fail
-	 ).
+	).
 
 
 enter(Position,Color,Move) :-	
@@ -206,6 +207,7 @@ play(_,_).
 %	Global Predicates
 %****************************************************************
 
+% true if a piece is in From and moves to To
 change(Old,Color,From,To,New):-
 	half(Old,Half,Color),
 	exist(From,Half,Type),
@@ -214,11 +216,12 @@ change(Old,Color,From,To,New):-
 	combine(Half,Type,[To|Templist],Newhalf),
 	add_half(Old,Newhalf,Color,New).
 
-kill(Old,Color,Feld,New):- 
+% true if there is a piece in the Field and kill it
+kill(Old,Color,Field,New):- 
 	half(Old,Half,Color),
-	exist(Feld,Half,Type),
+	exist(Field,Half,Type),
 	extract(Half,Type,List),
-	remove(Feld,List,Newlist),
+	remove(Field,List,Newlist),
 	combine(Half,Type,Newlist,Newhalf),
 	add_half(Old,Newhalf,Color,New).
 	
@@ -240,6 +243,7 @@ combine(half_position(A,B,C,D,E,_,G),king,N,half_position(A,B,C,D,E,N,G)).
 %	MakeMove Routines
 %****************************************************************
 
+% castling
 check_00(Old,white,15,17,New) :-
 	Old=position(half_position(_,_,_,_,_,[15],_),_,_),
 	change(Old,white,18,16,New),!.
@@ -254,6 +258,7 @@ check_00(Old,black,85,83,New) :-
 	change(Old,black,81,84,New),!.
 check_00(Old,_,_,_,Old).
 
+% move piece: 
 make_move(Color,Old,move(From,To),New,hit):-
 	invert(Color,Oppo),
 	kill(Old,Oppo,To,Temp),
@@ -269,30 +274,32 @@ make_move(Color,Old,move(From,To),New,nohit):-
 
 read_move(move(From,To)):-
 	repeat,
-	  write('Your move: '),
-	  read(Input),
-	  (
+	write('Your move: '),
+	read(Input),
+	(
 	  	Input = 'exit',
 	  	halt
-	  ;
-	    name(Input,[A,B,C,D]),
+	;
+	    name(Input,[A,B,C,D]),	% name("d2d4",[100, 50, 100, 52]) ascii:50-2,52-4,100-d
 	  	str_pos([A,B],From),
 	  	str_pos([C,D],To),!
-	  ;
+	;
 	  	write('Wrong format ( enter like <a1b2.> '),nl,
 	  	fail
-	  ).
+	).
 
+% pos e.g. 42 to str ["d","2"]
 str_pos([L,C],Pos):-
-	nonvar(Pos),
+	nonvar(Pos),	% Pos known
 	pos_no(Row,Col,Pos),
-	L is Col + 96,
+	L is Col + 96,	% int to char
 	C is Row + 48,!.
 str_pos([L,C],Pos):-
-	Col is L - 96,
+	Col is L - 96,	% char to int
 	Row is C - 48,
 	pos_no(Row,Col,Pos),!.
 
+% pos e.g. (2,2) to no 22
 pos_no(Row,Col,N):-
 	nonvar(N),!,
 	Row is N // 10,
@@ -300,6 +307,7 @@ pos_no(Row,Col,N):-
 pos_no(R,C,N):-
 	N  is  R*10 + C.
 
+% Move : check if Move is legal, Move e.g. from(Pos1,Pos2)
 check_legal(Move,Color,Position):-
  	generate(PosMove,Color,Position,_,_),
  	Move = PosMove,!.
@@ -307,7 +315,7 @@ check_legal(Move,Color,Position):-
 write_move(move(From,To)):-
   	str_pos([A,B],From),
   	str_pos([C,D],To),
-        name(Move,[A,B,C,D]),
+	name(Move,[A,B,C,D]),
 	write('My move:   '),write(Move),nl,!.
 	
 who_vs_who:-
@@ -322,9 +330,9 @@ who_vs_who:-
 	nl,
 	save_color(I).
 
-	
+
 get_vs(I):-
-	get(CI),
+	get(CI),	% CharI
 	I is CI - 48,
 	I > 0,I < 5,!.
 get_vs(I):- get_vs(I).
@@ -357,7 +365,7 @@ run:-
 	asserta(depth(2)),
 	init_stack,
 	who_vs_who,
-	play(Position,white),
+	play(Position,white),	% main circulation
 	closechess.	
 			
 %GOAL trace(off), run.
