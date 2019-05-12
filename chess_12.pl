@@ -174,11 +174,11 @@ evaluate(Position,Color,Value,Move,Depth,Alpha,Beta) :-
 enter(Position,Color,Move) :-
 	human(Color),
 	repeat,
-	read_move(Move),
+	read_move(Move,Color),
 	(	check_legal(Move,Color,Position),
 	 	nl,!
 	;
-		write('Illegal Move'),
+		write('Illegal Move!'),
 		nl,fail
 	).
 enter(Position,Color,Move) :-	
@@ -186,11 +186,16 @@ enter(Position,Color,Move) :-
 	worst_value(white,Alpha),
 	worst_value(black,Beta),
 	evaluate(Position,Color,_Value,Move,Depth,Alpha,Beta),
-	write_move(Move),!.
+	write_move(Move,Color),!.
 	
 % play: chess main loop, Start and Opposite take turns
 play(BasicPosition,Start) :-
 	asserta(board(BasicPosition,Start)),	% execute only once
+	nl,
+	draw_board(BasicPosition),
+	write('Enter moves like <d2d4.>'),nl,
+	write('Enter <exit.> to quit'),nl,
+	nl,
 	repeat,
 	retract(board(Position,Color)),			% read last Position status and color in action
 	enter(Position,Color,Move),
@@ -281,9 +286,9 @@ generate(Move,Color,Old,New,Hit):-
 %****************************************************************
 
 % read_move: read input from user
-read_move(move(From,To)):-
+read_move(move(From,To),Color):-
 	repeat,
-	write('Your move: '),
+	write("Your move: <"),write(Color),write(">"),
 	read(Input),
 	(
 	  	Input = 'exit',
@@ -317,11 +322,12 @@ pos_no(R,C,N):-
 	N  is  R*10 + C.
 
 % write_move : print move to screen.
-write_move(move(From,To)):-
-  	str_pos([A,B],From),
-  	str_pos([C,D],To),
+write_move(move(From,To),Color):-
+	str_pos([A,B],From),
+	str_pos([C,D],To),
 	name(Move,[A,B,C,D]),
-	write('My move: '),write(Move),nl,nl,!.
+	write("My move: <"),write(Color),write(">"),
+	write(Move),nl,nl,!.
 	
 % draw_board: show current position
 draw_board(Position):-
@@ -331,14 +337,15 @@ draw_board(Position):-
 	place_pieces(black,H2,Board1,BoardNew),
 	write_board(BoardNew).
 write_board([R1,R2,R3,R4,R5,R6,R7,R8]):-
-	write(R8),nl,
-	write(R7),nl,
-	write(R6),nl,
-	write(R5),nl,
-	write(R4),nl,
-	write(R3),nl,
-	write(R2),nl,
-	write(R1),nl,nl.
+	write("8"),write(R8),nl,
+	write("7"),write(R7),nl,
+	write("6"),write(R6),nl,
+	write("5"),write(R5),nl,
+	write("4"),write(R4),nl,
+	write("3"),write(R3),nl,
+	write("2"),write(R2),nl,
+	write("1"),write(R1),nl,
+	write("  a b c d e f g h"),nl,nl.
 % generate_board: generate blank board
 generate_board([[' ',' ',' ',' ',' ',' ',' ',' '],
 				[' ',' ',' ',' ',' ',' ',' ',' '],
@@ -391,10 +398,6 @@ who_vs_who:-
 	write('Computer(W) vs Human(B)   ( 3 )'),nl,
 	write('Computer(W) vs Computer(B)( 4 )'),nl,
 	get_vs(I),
-	nl,
-	write('Enter moves like <d2d4.>'),nl,
-	write('Enter <exit.> to quit'),nl,
-	nl,
 	save_color(I).
 
 get_vs(I):-
