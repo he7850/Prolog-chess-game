@@ -31,12 +31,12 @@ domains
 	% comment for english speakers: 
 	% -----------------------------
 	%
-	% "halbstellung" is German for "half-position"
-	% "stellung" is German for "position"
-	% "brett" - "board"
+	% "half_position" is German for "half-position"
+	% "position" is German for "position"
+	% "board" - "board"
 	
-	halbstellung=halbstellung(list,list,list,list,list,list,moveflag)	
-	stellung=stellung(halbstellung,halbstellung,i)
+	half_position=half_position(list,list,list,list,list,list,moveflag)	
+	position=position(half_position,half_position,i)
 */
 
 %database
@@ -45,12 +45,12 @@ domains
 	top/1,
 	human/1,
 	depth/1,
-	brett/2.
+	board/2.
 
 /*
 PREDICATES
 	rand(i)
-	exist(i,halbstellung,type)
+	exist(i,half_position,type)
         single(i,list)
         invert(color,color)               
 	remove(i,list,list)
@@ -71,17 +71,17 @@ rand(X):-
 rand(X):-
 	9 is X mod 10,!.
 	
-exist(Feld,halbstellung(X,_,_,_,_,_,_),pawn):-
+exist(Feld,half_position(X,_,_,_,_,_,_),pawn):-
 	single(Feld,X).
-exist(Feld,halbstellung(_,X,_,_,_,_,_),rook):-
+exist(Feld,half_position(_,X,_,_,_,_,_),rook):-
 	single(Feld,X).
-exist(Feld,halbstellung(_,_,X,_,_,_,_),knight):-
+exist(Feld,half_position(_,_,X,_,_,_,_),knight):-
 	single(Feld,X).
-exist(Feld,halbstellung(_,_,_,X,_,_,_),bishop):-
+exist(Feld,half_position(_,_,_,X,_,_,_),bishop):-
 	single(Feld,X).
-exist(Feld,halbstellung(_,_,_,_,X,_,_),queen):-
+exist(Feld,half_position(_,_,_,_,X,_,_),queen):-
 	single(Feld,X).
-exist(Feld,halbstellung(_,_,_,_,_,X,_),king):-
+exist(Feld,half_position(_,_,_,_,_,X,_),king):-
 	single(Feld,X).
 
 single(X,[X|_]).

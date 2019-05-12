@@ -11,7 +11,7 @@
 %		<none>						*
 %								*
 %	EXPORT:							*
-%		all_moves(Color,Stellung,Move)			*
+%		all_moves(Color,Position,Move)			*
 %								*
 %	TEST:							*
 %		zug_gen()					*
@@ -21,63 +21,63 @@
 %ifndef def_domains INCLUDE "globals.pro" enddef
 /*
 PREDICATES
-	one_step(i,i,i,color,stellung)
-	call_multiple(i,i,i,color,stellung)
-	multiple(i,i,i,color,stellung)
-	half(stellung,halbstellung,color)
-        add_half(stellung,halbstellung,color,stellung)
+	one_step(i,i,i,color,position)
+	call_multiple(i,i,i,color,position)
+	multiple(i,i,i,color,position)
+	half(position,half_position,color)
+        add_half(position,half_position,color,position)
         poss_move(type,i)
 
-	bauermove(i,color,stellung,i)
-	longmove(i,color,type,stellung,i)
-        shortmove(i,color,type,stellung,i)
-        occupied(i,color,stellung)
-        fre(i,stellung)
-	all_moves(color,stellung,move)
+	pawn_move(i,color,position,i)
+	longmove(i,color,type,position,i)
+        shortmove(i,color,type,position,i)
+        occupied(i,color,position)
+        fre(i,position)
+	all_moves(color,position,move)
 	
 	zug_gen
 
 CLAUSES
 */
 
-one_step(Feld,Direction,Next,Color,Stellung):-	
-	Next  is  Feld + Direction,
+one_step(Field,Direction,Next,Color,Position):-	
+	Next  is  Field + Direction,
 	not(rand(Next)),
-	not(occupied(Next,Color,Stellung)).
+	not(occupied(Next,Color,Position)).
 
-call_multiple(Feld,Direct,Next,Color,Stellung):-
-	Step  is  Feld + Direct,
-	multiple(Step,Direct,Next,Color,Stellung).
+call_multiple(Field,Direct,Next,Color,Position):-
+	Step  is  Field + Direct,
+	multiple(Step,Direct,Next,Color,Position).
 
-multiple(Feld,_,_,_,_):-
-	rand(Feld),
+multiple(Field,_,_,_,_):-
+	rand(Field),
 	!,fail.
-multiple(Feld,_,_,Color,Stellung):-
- 	occupied(Feld,Color,Stellung),
+multiple(Field,_,_,Color,Position):-
+ 	occupied(Field,Color,Position),
  	!,fail.
-multiple(Feld,_,Feld,Color,Stellung):-
+multiple(Field,_,Field,Color,Position):-
 	invert(Color,Oppo),
-	occupied(Feld,Oppo,Stellung),!.
-multiple(Feld,_,Feld,_,_).
-multiple(Feld,Direction,Next,Color,Stellung):-
-	Step  is  Feld + Direction,
-	multiple(Step,Direction,Next,Color,Stellung).
+	occupied(Field,Oppo,Position),!.
+multiple(Field,_,Field,_,_).
+multiple(Field,Direction,Next,Color,Position):-
+	Step  is  Field + Direction,
+	multiple(Step,Direction,Next,Color,Position).
 	
-half(stellung(Halb,_,_),Halb,white).
-half(stellung(_,Halb,_),Halb,black).
+half(position(Half,_,_),Half,white).
+half(position(_,Half,_),Half,black).
 
-add_half(stellung(_,Y,Z),Halb,white,stellung(Halb,Y,Z)).
-add_half(stellung(X,_,Z),Halb,black,stellung(X,Halb,Z)).
+add_half(position(_,Y,Z),Half,white,position(Half,Y,Z)).
+add_half(position(X,_,Z),Half,black,position(X,Half,Z)).
 
-occupied(Feld,white,stellung(Stones,_,_)):-
-	exist(Feld,Stones,_).	
-occupied(Feld,black,stellung(_,Stones,_)):-
-	exist(Feld,Stones,_).	
+occupied(Field,white,position(Stones,_,_)):-
+	exist(Field,Stones,_).	
+occupied(Field,black,position(_,Stones,_)):-
+	exist(Field,Stones,_).	
 
-fre(Feld,Stellung):-
-	not(occupied(Feld,white,Stellung)),
-	not(occupied(Feld,black,Stellung)),
-	not(rand(Feld)).
+fre(Field,Position):-
+	not(occupied(Field,white,Position)),
+	not(occupied(Field,black,Position)),
+	not(rand(Field)).
 
 poss_move(rook,10).
 poss_move(rook,-10).
@@ -103,77 +103,77 @@ poss_move(king,X):-
 	poss_move(queen,X).
 	
 		
-bauermove(From,white,Stellung,To):-
+pawn_move(From,white,Position,To):-
 	To  is  From + 9,
-	occupied(To,black,Stellung).
-bauermove(From,white,Stellung,To):-
+	occupied(To,black,Position).
+pawn_move(From,white,Position,To):-
 	To  is  From + 10,
-	fre(To,Stellung).
-bauermove(From,white,Stellung,To):-
+	fre(To,Position).
+pawn_move(From,white,Position,To):-
 	To  is  From + 11,
-	occupied(To,black,Stellung).
-bauermove(From,white,Stellung,To):-
+	occupied(To,black,Position).
+pawn_move(From,white,Position,To):-
 	To  is  From + 20,
 	Over  is  From + 10,
-	fre(To,Stellung),
-	fre(Over,Stellung),
+	fre(To,Position),
+	fre(Over,Position),
 	Row  is  From // 10,
 	Row = 2.
-bauermove(From,black,Stellung,To):-
+pawn_move(From,black,Position,To):-
 	To  is  From - 9,
-	occupied(To,white,Stellung).
-bauermove(From,black,Stellung,To):-
+	occupied(To,white,Position).
+pawn_move(From,black,Position,To):-
 	To  is  From - 10,
-	fre(To,Stellung).
-bauermove(From,black,Stellung,To):-
+	fre(To,Position).
+pawn_move(From,black,Position,To):-
 	To  is  From - 11,
-	occupied(To,white,Stellung).
-bauermove(From,black,Stellung,To):-
+	occupied(To,white,Position).
+pawn_move(From,black,Position,To):-
 	To  is  From - 20,
 	Over  is  From - 10,
-	fre(To,Stellung),
-	fre(Over,Stellung),
+	fre(To,Position),
+	fre(Over,Position),
 	Row  is  From // 10,
 	Row = 7.
 
-longmove(From,Farbe,Typ,Stellung,To):-
-	poss_move(Typ,Richtung),
-	call_multiple(From,Richtung,To,Farbe,Stellung).
-shortmove(From,Farbe,Typ,Stellung,To):-
-	poss_move(Typ,Richtung),
-	one_step(From,Richtung,To,Farbe,Stellung).
+longmove(From,Color,Typ,Position,To):-
+	poss_move(Typ,Direction),
+	call_multiple(From,Direction,To,Color,Position).
+shortmove(From,Color,Typ,Position,To):-
+	poss_move(Typ,Direction),
+	one_step(From,Direction,To,Color,Position).
 	
-all_moves(Color,Stellung,move(From,To)):-
-	half(Stellung,halbstellung(Bauern,_,_,_,_,_,_),Color),
+all_moves(Color,Position,move(From,To)):-
+	half(Position,half_position(Bauern,_,_,_,_,_,_),Color),
 	single(From,Bauern),
-	bauermove(From,Color,Stellung,To).
-all_moves(Color,Stellung,move(From,To)):-
-	half(Stellung,halbstellung(_,Rookies,_,_,_,_,_),Color),
+	pawn_move(From,Color,Position,To).
+all_moves(Color,Position,move(From,To)):-
+	half(Position,half_position(_,Rookies,_,_,_,_,_),Color),
 	single(From,Rookies),
-	longmove(From,Color,rook,Stellung,To).
-all_moves(Color,Stellung,move(From,To)):-
-	half(Stellung,halbstellung(_,_,Knights,_,_,_,_),Color),
+	longmove(From,Color,rook,Position,To).
+all_moves(Color,Position,move(From,To)):-
+	half(Position,half_position(_,_,Knights,_,_,_,_),Color),
 	single(From,Knights),
-	shortmove(From,Color,knight,Stellung,To).
-all_moves(Color,Stellung,move(From,To)):-
-	half(Stellung,halbstellung(_,_,_,Bishies,_,_,_),Color),
+	shortmove(From,Color,knight,Position,To).
+all_moves(Color,Position,move(From,To)):-
+	half(Position,half_position(_,_,_,Bishies,_,_,_),Color),
 	single(From,Bishies),
-	longmove(From,Color,bishop,Stellung,To).
-all_moves(Color,Stellung,move(From,To)):-
-	half(Stellung,halbstellung(_,_,_,_,Queenies,_,_),Color),
+	longmove(From,Color,bishop,Position,To).
+all_moves(Color,Position,move(From,To)):-
+	half(Position,half_position(_,_,_,_,Queenies,_,_),Color),
 	single(From,Queenies),
-	longmove(From,Color,queen,Stellung,To).
-all_moves(Color,Stellung,move(King,To)):-
-	half(Stellung,halbstellung(_,_,_,_,_,[King],_),Color),
-	shortmove(King,Color,king,Stellung,To).
+	longmove(From,Color,queen,Position,To).
+all_moves(Color,Position,move(King,To)):-
+	half(Position,half_position(_,_,_,_,_,[King],_),Color),
+	shortmove(King,Color,king,Position,To).
 
 zug_gen:-
-	Bauerw = [21,22,23,24,25,26,27,28],
-	Bauerb = [71,72,73,74,75,76,77,78],
-	H1 = halbstellung(Bauerw,[11,18],[12,17],[13,16],[14],[15],notmoved),
-	H2 = halbstellung(Bauerb,[81,88],[82,87],[83,86],[84],[85],notmoved),
-	Stellung = stellung(H1,H2,0),
+	PawnWhite = [21,22,23,24,25,26,27,28],
+	PawnBlack = [71,72,73,74,75,76,77,78],
+	H1 = half_position(PawnWhite,[11,18],[12,17],[13,16],[14],[15],notmoved),
+	H2 = half_position(PawnBlack,[81,88],[82,87],[83,86],[84],[85],notmoved),
+	Position = position(H1,H2,0),
 	
-	all_moves(white,Stellung,Move),
+	all_moves(white,Position,Move),
 	  write(Move),nl,
 	fail.
