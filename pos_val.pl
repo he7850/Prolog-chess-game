@@ -8,7 +8,7 @@ PREDICATES
 	compensate(color,i)
 	worst_value(color,i)
 	winning(color,i)
-	count_halbst(half_position,color,i)
+	count_halfst(half_position,color,i)
 	double_bonus(list,i)
 	pos_count(type,list,color,i)
 	pos_value(type,i,color,i)
@@ -29,7 +29,7 @@ worst_value(black, 10000).
 winning(white, 9000).
 winning(black,-9000).	
 		
-count_halbst(half_position(Pawns,Rooks,Knights,Bishops,Queens,[_],_)
+count_halfst(half_position(Pawns,Rooks,Knights,Bishops,Queens,[_],_)
 						,Color,Value) :-				
 	pos_count(pawn,Pawns,Color,V1),
 	pos_count(rook,Rooks,Color,V2),
