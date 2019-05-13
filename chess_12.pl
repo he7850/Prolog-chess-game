@@ -191,23 +191,44 @@ enter(Position,Color,Move) :-
 	write_move(Move,Color),!.
 	
 % play: chess main loop, Start and Opposite take turns
+% play: chess main loop, Start and Opposite take turns
 play(BasicPosition,Start) :-
-	asserta(board(BasicPosition,Start)),	% execute only once
-	nl,
-	draw_board(BasicPosition),
-	write('Enter moves like <d2d4.>'),nl,
-	write('Enter <exit.> to quit'),nl,
-	nl,
-	repeat,
-	retract(board(Position,Color)),			% read last Position status and color in action
-	enter(Position,Color,Move),
-	make_move(Color,Position,Move,New,_),
-	draw_board(New),
-	invert(Color,Op),
-	asserta(board(New,Op)),					% store current Position status and opposite color
-	fail.
+        asserta(board(BasicPosition,Start)),    % execute only once
+        nl,
+        draw_board(BasicPosition),
+        write('Enter moves like <d2d4.>'),nl,
+        write('Enter <exit.> to quit'),nl,
+        nl,
+        repeat,
+        retract(board(Position,Color)),                 % read last Position status and color in action
+        ( are_kings_alive(Position) ->
+                enter(Position,Color,Move),
+                make_move(Color,Position,Move,New,_),
+                draw_board(New),
+                invert(Color,Op),
+                asserta(board(New,Op)),                                 % store current Position status and opposite color
+                fail
+        ;
+                write_winner(Position),
+                !, fail
+        ).
 play(_,_).
 
+king_alive(half_position(_,_,_,_,_,K,_)) :-
+        length(K,KL),
+        KL = 1.
+
+write_winner(Position) :-
+        write('GAME ENDED'), nl,
+        winner(Position,Winner),
+        write(Winner), write(' wins'), nl.
+
+are_kings_alive(position(W,B,_)) :-
+        king_alive(W),
+        king_alive(B).
+
+winner(position(W,_,_), white) :- king_alive(W).
+winner(position(_,B,_), black) :- king_alive(B).
 	
 %****************************************************************
 %	Global Predicates
