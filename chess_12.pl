@@ -166,6 +166,7 @@ evaluate(Position,Color,Value,Move,Depth,Alpha,Beta) :-
 	not(get_best(Position,Color,Depth,Alpha,Beta)),
 	pull(Move,Value),!.
 	
+
 %****************************************************************
 %	Control Management
 %****************************************************************
@@ -175,7 +176,8 @@ enter(Position,Color,Move) :-
 	human(Color),
 	repeat,
 	read_move(Move,Color),
-	(	check_legal(Move,Color,Position),
+	(	
+		check_legal(Move,Color,Position),
 	 	nl,!
 	;
 		write('Illegal Move!'),
@@ -281,6 +283,7 @@ generate(Move,Color,Old,New,Hit):-
 	all_moves(Color,Old,Move),
 	make_move(Color,Old,Move,New,Hit).
 
+
 %****************************************************************
 %	User Interface
 %****************************************************************
@@ -288,7 +291,7 @@ generate(Move,Color,Old,New,Hit):-
 % read_move: read input from user
 read_move(move(From,To),Color):-
 	repeat,
-	write("Your move: <"),write(Color),write(">"),
+	write("Your move: <"),write(Color),write("> "),
 	read(Input),
 	(
 	  	Input = 'exit',
@@ -326,7 +329,7 @@ write_move(move(From,To),Color):-
 	str_pos([A,B],From),
 	str_pos([C,D],To),
 	name(Move,[A,B,C,D]),
-	write("My move: <"),write(Color),write(">"),
+	write("My move: <"),write(Color),write("> "),
 	write(Move),nl,nl,!.
 	
 % draw_board: show current position
@@ -348,13 +351,13 @@ write_board([R1,R2,R3,R4,R5,R6,R7,R8]):-
 	write("  a b c d e f g h"),nl,nl.
 % generate_board: generate blank board
 generate_board([[' ',' ',' ',' ',' ',' ',' ',' '],
-				[' ',' ',' ',' ',' ',' ',' ',' '],
-				[' ',' ',' ',' ',' ',' ',' ',' '],
-				[' ',' ',' ',' ',' ',' ',' ',' '],
-				[' ',' ',' ',' ',' ',' ',' ',' '],
-				[' ',' ',' ',' ',' ',' ',' ',' '],
-				[' ',' ',' ',' ',' ',' ',' ',' '],
-				[' ',' ',' ',' ',' ',' ',' ',' ']]).
+								[' ',' ',' ',' ',' ',' ',' ',' '],
+								[' ',' ',' ',' ',' ',' ',' ',' '],
+								[' ',' ',' ',' ',' ',' ',' ',' '],
+								[' ',' ',' ',' ',' ',' ',' ',' '],
+								[' ',' ',' ',' ',' ',' ',' ',' '],
+								[' ',' ',' ',' ',' ',' ',' ',' '],
+								[' ',' ',' ',' ',' ',' ',' ',' ']]).
 % place_pieces: place pieces of half side on board
 place_pieces(white,Half,Board,BoardNew):-
 	Half = half_position(Pawn,Rook,Knight,Bishop,Queen,King,_),

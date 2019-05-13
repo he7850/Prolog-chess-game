@@ -143,6 +143,41 @@ pawn_move(From,black,Position,To):-
 	Row  is  From // 10,
 	Row = 7.
 
+% short castling
+castling_move(Color,Position,King,To):-
+	(
+		Color=white, 
+		King=15
+		;
+		Color=black,
+		King=85
+	),
+	RookNew is King+1,
+	To is King+2,
+	Rook is King+3,
+	half(Position,half_position(_,Rookies,_,_,_,_,_),Color),
+	single(Rook,Rookies),
+	fre(RookNew,Position),
+	fre(To,Position).
+% long castling
+castling_move(Color,Position,King,To):-
+	(
+		Color=white, 
+		King=15
+		;
+		Color=black,
+		King=85
+	),
+	RookNew is King-1,
+	To is King-2,
+	Blank is King-3,
+	Rook is King-5,
+	half(Position,half_position(_,Rookies,_,_,_,_,_),Color),
+	single(Rook,Rookies),
+	fre(RookNew,Position),
+	fre(To,Position),
+	fre(Blank,Position).
+
 % longmove: move for long distance
 longmove(From,Color,Typ,Position,To):-
 	poss_move(Typ,Direction),
@@ -152,6 +187,8 @@ shortmove(From,Color,Typ,Position,To):-
 	poss_move(Typ,Direction),
 	one_step(From,Direction,To,Color,Position).
 	
+
+
 % all_moves: generate all moves
 all_moves(Color,Position,move(From,To)):-
 	half(Position,half_position(Pawn,_,_,_,_,_,_),Color),
@@ -176,6 +213,11 @@ all_moves(Color,Position,move(From,To)):-
 all_moves(Color,Position,move(King,To)):-
 	half(Position,half_position(_,_,_,_,_,[King],_),Color),
 	shortmove(King,Color,king,Position,To).
+all_moves(Color,Position,move(King,To)):-
+	half(Position,half_position(_,_,_,_,_,[King],_),Color),
+	castling_move(Color,Position,King,To).
+
+
 
 zug_gen:-
 	PawnWhite = [21,22,23,24,25,26,27,28],
