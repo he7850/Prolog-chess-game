@@ -1,114 +1,13 @@
-%****************************************************************
-%															*
-%	PROLOG CHESS 											*
-%	Version 1.2 for standard prolog							*
-%															*
-%	Quick and Dirty Port on 25.6.95 by Martin Ostermann		*
-%	mailto:mos@brainaid.oche.de								*
-%															*
-%	The original is writen in Turbo-Prolog 2.0 and contains *
-%	a very nice GUI Interface.								*
-%															*
-%	------------------------------------------------------  *
-%															*
-%	This Program is the result of the 						*
-%	Artificial Intelligence Project at the					*
-%															*
-%	Computer-Club der RWTH Aachen							*
-% 	KI - Gruppe 89/90										*
-%															*
-%	This program belongs to the Public Domain.				*
-%	The source may freely be reproduced or changed			*
-%	for noncommercial purposes.								*
-%	Please refer to											*
-%															*
-%		Frank Bergmann										*
-%															*
-%		fraber@cs.tu-berlin.de								*
-%	    or	fraber@brainaid.oche.de							*
-%															*
-%	for all other purposes.									*
-%															*
-%****************************************************************
 
-/* 
-
-% !!!! For Quintus, uncomment these:
-
-:-ensure_loaded(library(basics)).
-not(X):- \+ X.
-
-*/
 :- [globals] .	% DOMAINS + common predicates
 :- [zug_gen].	% Position Generator
 :- [stack].		% Stack Management
 :- [pos_val].	% Position Evaluation routines
 
-/*
-predicates
-	newdepth(i,symbol,i)
-	get_best(position,color,i,i,i)
-	new_alpha_beta(color,i,i,i,i)
-	compare_move(move,i,color)
-	cutting(i,color,i,i)
-	evaluate(position,color,i,move,i,i,i)
-
-	enter(position,color,move)
-	play(position,color)
-	initial_pos (position)
-	change(position,color,i,i,position)
-	kill(position,color,i,position)
-	extract(half_position,type,list)
-        combine(half_position,type,list,half_position)
-	check_00(position,color,i,i,position)
-	make_move(color,position,move,position,symbol)     
-	generate(move,color,position,position,symbol)
-	checkflag(i,i,i,i,st,st,st)
-	move_1(i,i,i,i)
-	importmove(move)
-	intoxy(i,i,i)
-	retract_input
-	remove_blank(st,st)
-	inputcommand(char,st,i,i)
-	check_char(char,lc)
-	check_str(st,i,i)
-	ilegal(st)
-	is_figur(i,i,st)
-	right_move(i,i,i,i,st)
-	right_move_1(i,i,i,i,st)
-	exportmove(move)
-	edit_move(char,st)
-	echo_char(char,st)
-	outtext_move(char,char,st,st,st)
-	outtext_move_1(st,i,i,i,i,st)
-	run
-	
-CLAUSES
-*/
-
-
-frontchar(I,C,R):-
-	nonvar(I),
-	name(I,S),
-	S = [Char|Rest],
-	name(R,Rest),
-	name(C,[Char]),!.
-frontchar(I,C,R):-
-	nonvar(C),nonvar(R),
-	name(Rest,R),
-	name([Char],C),
-	S = [Char|Rest],
-	name(I,S),!.
-
-str_char(S,C):-
-	name(S,[C]).
-
-char_int(C,C).
-
-
 %****************************************************************
 %	Tree Management
 %****************************************************************
+%
 
 newdepth(_Depth,hit,NewDepth) :-
 	top(X),
@@ -168,7 +67,7 @@ evaluate(Position,Color,Value,Move,Depth,Alpha,Beta) :-
 	
 
 %****************************************************************
-%	Control Management
+%	game control predicates
 %****************************************************************
 
 % enter: given Position and Color, return a Move from human or computer
@@ -252,6 +151,7 @@ kill(Old,Color,Field,New):-
 	combine(Half,Type,Newlist,Newhalf),
 	update_half(Old,Newhalf,Color,New).
 	
+% extract: extract certain type of pieces from half position
 extract(half_position(X,_,_,_,_,_,_),pawn,X).
 extract(half_position(_,X,_,_,_,_,_),rook,X).
 extract(half_position(_,_,X,_,_,_,_),knight,X).
@@ -259,6 +159,7 @@ extract(half_position(_,_,_,X,_,_,_),bishop,X).
 extract(half_position(_,_,_,_,X,_,_),queen,X).
 extract(half_position(_,_,_,_,_,X,_),king,X).
 
+% combine: combine new piece list with original half position
 combine(half_position(_,B,C,D,E,F,G),pawn,N,half_position(N,B,C,D,E,F,G)).
 combine(half_position(A,_,C,D,E,F,G),rook,N,half_position(A,N,C,D,E,F,G)).
 combine(half_position(A,B,_,D,E,F,G),knight,N,half_position(A,B,N,D,E,F,G)).
@@ -306,7 +207,7 @@ generate(Move,Color,Old,New,Hit):-
 
 
 %****************************************************************
-%	User Interface
+%	User Interface Predicates
 %****************************************************************
 
 % read_move: read input from user
@@ -413,9 +314,6 @@ replace([_|T], 1, X, [X|T]).
 replace([H|T], I, X, [H|R]):- I > 1, NI is I-1, replace(T, NI, X, R), !.
 replace(L, _, _, L).
 
-
-
-
 who_vs_who:-
 	write('Human(W) vs Human(B)      ( 1 )'),nl,
 	write('Human(W) vs Computer(B)   ( 2 )'),nl,
@@ -430,9 +328,7 @@ get_vs(I):-
 	I > 0,I < 5,!.
 get_vs(I):- get_vs(I).
 
-save_color(1):-
-	asserta(human(white)),
-	assertz(human(black)),!.		
+save_color(1):- asserta(human(white)), assertz(human(black)),!.		
 save_color(2):- asserta(human(white)),!.
 save_color(3):- asserta(human(black)),!.	
 save_color(4).
@@ -461,4 +357,3 @@ run:-
 	play(Position,white),	% main circulation
 	closechess.	
 			
-%GOAL trace(off), run.
