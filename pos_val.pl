@@ -1,24 +1,6 @@
-/*			*/	
-/* Position Evaluation  */
-/*			*/	
-/*
-ifndef def_domains INCLUDE "globals.pro" enddef
-
-PREDICATES
-	compensate(color,i)
-	worst_value(color,i)
-	winning(color,i)
-	count_halfst(half_position,color,i)
-	double_bonus(list,i)
-	pos_count(type,list,color,i)
-	pos_value(type,i,color,i)
-	row_value(type,i,i)
-	line_value(type,i,i)				
-	row(i,i)
-	row_line(i,i,i)
-
-CLAUSES
-*/
+%	
+% Position Evaluation
+%
 
 compensate(white,15).
 compensate(black,-15).

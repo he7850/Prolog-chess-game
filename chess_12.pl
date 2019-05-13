@@ -171,14 +171,14 @@ evaluate(Position,Color,Value,Move,Depth,Alpha,Beta) :-
 %	Control Management
 %****************************************************************
 
-% enter: given Position and Color, give a Move from human or computer
+% enter: given Position and Color, return a Move from human or computer
 enter(Position,Color,Move) :-
 	human(Color),
 	repeat,
 	read_move(Move,Color),
 	(	
 		check_legal(Move,Color,Position),
-	 	nl,!
+		nl,!
 	;
 		write('Illegal Move!'),
 		nl,fail
@@ -193,39 +193,39 @@ enter(Position,Color,Move) :-
 % play: chess main loop, Start and Opposite take turns
 % play: chess main loop, Start and Opposite take turns
 play(BasicPosition,Start) :-
-        asserta(board(BasicPosition,Start)),    % execute only once
-        nl,
-        draw_board(BasicPosition),
-        write('Enter moves like <d2d4.>'),nl,
-        write('Enter <exit.> to quit'),nl,
-        nl,
-        repeat,
-        retract(board(Position,Color)),                 % read last Position status and color in action
-        ( are_kings_alive(Position) ->
-                enter(Position,Color,Move),
-                make_move(Color,Position,Move,New,_),
-                draw_board(New),
-                invert(Color,Op),
-                asserta(board(New,Op)),                                 % store current Position status and opposite color
-                fail
-        ;
-                write_winner(Position),
-                !, fail
-        ).
+	asserta(board(BasicPosition,Start)),    % execute only once
+	nl,
+	draw_board(BasicPosition),
+	write('Enter moves like <d2d4.>'),nl,
+	write('Enter <exit.> to quit'),nl,
+	nl,
+	repeat,
+	retract(board(Position,Color)),         % read last Position status and color in action
+	( 
+		are_kings_alive(Position) ->
+		enter(Position,Color,Move),
+		make_move(Color,Position,Move,New,_),
+		draw_board(New),
+		invert(Color,Op),
+		asserta(board(New,Op)),               % store current Position status and opposite color
+		fail
+	;
+		write_winner(Position),
+		!, fail
+	).
 play(_,_).
 
 king_alive(half_position(_,_,_,_,_,K,_)) :-
-        length(K,KL),
-        KL = 1.
+	length(K,1).
 
 write_winner(Position) :-
-        write('GAME ENDED'), nl,
-        winner(Position,Winner),
-        write(Winner), write(' wins'), nl.
+	write('GAME ENDED'), nl,
+	winner(Position,Winner),
+	write(Winner), write(' wins'), nl.
 
 are_kings_alive(position(W,B,_)) :-
-        king_alive(W),
-        king_alive(B).
+	king_alive(W),
+	king_alive(B).
 
 winner(position(W,_,_), white) :- king_alive(W).
 winner(position(_,B,_), black) :- king_alive(B).
@@ -236,21 +236,21 @@ winner(position(_,B,_), black) :- king_alive(B).
 
 % true if a piece is in From and moves to To
 change(Old,Color,From,To,New):-
-	half(Old,Half,Color),
+	get_half(Old,Half,Color),
 	exist(From,Half,Type),
 	extract(Half,Type,List),
 	remove(From,List,Templist),
 	combine(Half,Type,[To|Templist],Newhalf),
-	add_half(Old,Newhalf,Color,New).
+	update_half(Old,Newhalf,Color,New).
 
 % true if there is a piece in the Field and kill it
 kill(Old,Color,Field,New):- 
-	half(Old,Half,Color),
+	get_half(Old,Half,Color),
 	exist(Field,Half,Type),
 	extract(Half,Type,List),
 	remove(Field,List,Newlist),
 	combine(Half,Type,Newlist,Newhalf),
-	add_half(Old,Newhalf,Color,New).
+	update_half(Old,Newhalf,Color,New).
 	
 extract(half_position(X,_,_,_,_,_,_),pawn,X).
 extract(half_position(_,X,_,_,_,_,_),rook,X).
