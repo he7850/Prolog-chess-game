@@ -211,7 +211,8 @@ generate(Move,Color,Old,New,Hit):-
 % read_move: read input from user
 read_move(move(From,To),Color):-
 	repeat,
-	write("Your move: <"),write(Color),write("> "),
+	% write("Your move: <"),write(Color),write("> "),
+	write("Your move: "),
 	read(Input),
 	(
 	  	Input = 'exit',
@@ -249,7 +250,8 @@ write_move(move(From,To),Color):-
 	str_pos([A,B],From),
 	str_pos([C,D],To),
 	name(Move,[A,B,C,D]),
-	write("My move: <"),write(Color),write("> "),
+	% write("My move: <"),write(Color),write("> "),
+	write("My move: "),
 	write(Move),nl,nl,!.
 	
 % draw_board: show current position

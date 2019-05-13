@@ -13,7 +13,10 @@ one_step(Field,Direction,Next,Color,Position):-
 multiple_steps(Field,Direction,Next,Color,Position):-
 	one_step(Field,Direction,Next,Color,Position).
 multiple_steps(Field,Direction,Next,Color,Position):-
-	one_step(Field,Direction,FieldNew,Color,Position),	
+	one_step(Field,Direction,FieldNew,Color,Position),
+	invert(Color,Oppo),
+	get_half(Position,HalfOppo,Oppo),
+	not(exist(FieldNew,HalfOppo,_)),
 	multiple_steps(FieldNew,Direction,Next,Color,Position).
 	
 % get_half: get half position for one side
