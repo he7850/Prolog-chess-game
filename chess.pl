@@ -1,12 +1,11 @@
 
-:- [globals] .	% DOMAINS + common predicates
-:- [zug_gen].	% Position Generator
-:- [stack].		% Stack Management
-:- [pos_val].	% Position Evaluation routines
+:- [utils].	
+:- [piece_rule].
+:- [board_eval].
 
-%****************************************************************
-%	Tree Management
-%****************************************************************
+% ***************************************************************
+%	Computer Predicates
+% ***************************************************************
 %
 
 newdepth(_Depth,hit,NewDepth) :-
@@ -67,7 +66,7 @@ evaluate(Position,Color,Value,Move,Depth,Alpha,Beta) :-
 	
 
 %****************************************************************
-%	game control predicates
+%	Game Control Predicates
 %****************************************************************
 
 % enter: given Position and Color, return a Move from human or computer
@@ -89,7 +88,6 @@ enter(Position,Color,Move) :-
 	evaluate(Position,Color,_Value,Move,Depth,Alpha,Beta),
 	write_move(Move,Color),!.
 	
-% play: chess main loop, Start and Opposite take turns
 % play: chess main loop, Start and Opposite take turns
 play(BasicPosition,Start) :-
 	asserta(board(BasicPosition,Start)),    % execute only once
@@ -130,7 +128,7 @@ winner(position(W,_,_), white) :- king_alive(W).
 winner(position(_,B,_), black) :- king_alive(B).
 	
 %****************************************************************
-%	Global Predicates
+%	Board Predicates
 %****************************************************************
 
 % true if a piece is in From and moves to To
@@ -168,7 +166,7 @@ combine(half_position(A,B,C,D,_,F,G),queen,N,half_position(A,B,C,D,N,F,G)).
 combine(half_position(A,B,C,D,E,_,G),king,N,half_position(A,B,C,D,E,N,G)).
 	
 %****************************************************************
-%	MakeMove Routines
+%	Move Predicates
 %****************************************************************
 
 % castling
@@ -207,7 +205,7 @@ generate(Move,Color,Old,New,Hit):-
 
 
 %****************************************************************
-%	User Interface Predicates
+%	UI Predicates
 %****************************************************************
 
 % read_move: read input from user
@@ -334,7 +332,7 @@ save_color(3):- asserta(human(black)),!.
 save_color(4).
 				
 %****************************************************************
-%	GOAL Section
+%	Main Predicates
 %****************************************************************
 
 initial_pos(position(H1,H2,0)):-
